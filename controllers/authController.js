@@ -1,7 +1,10 @@
 const User = require('../models/User');
+const connectDB = require('../config/database');
 
 const register = async (req, res) => {
   try {
+    // Ensure database connection before operations (important for serverless)
+    await connectDB();
     const { name, phone, password, roles, activeRole, extraData } = req.body;
 
     // Validation

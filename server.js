@@ -18,8 +18,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 
 // Health check route
-app.get('/', (req, res) => {
-  res.json({ message: 'Food4U API is running' });
+app.get('/', async (req, res) => {
+  try {
+    await connectDB();
+    res.json({ message: 'Food4U API is running', db: 'connected' });
+  } catch (error) {
+    res.json({ message: 'Food4U API is running', db: 'disconnected', error: error.message });
+  }
 });
 
 // Error handling middleware
