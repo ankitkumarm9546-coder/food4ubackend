@@ -29,28 +29,28 @@ curl http://localhost:3000/
 ```bash
 curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d "{\"name\":\"John Driver\",\"phone\":\"1234567890\",\"password\":\"password123\",\"roles\":[\"driver\"],\"activeRole\":\"driver\",\"extraData\":{\"vehicle\":\"Toyota Camry\"}}"
+  -d "{\"name\":\"John Driver\",\"phone\":\"1234567890\",\"password\":\"password123\",\"roles\":[\"driver\"],\"extraData\":{\"vehicle\":\"Toyota Camry\"}}"
 ```
 
 ### Test 3: Register a Restaurant
 ```bash
 curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d "{\"name\":\"Pizza Palace Owner\",\"phone\":\"9876543210\",\"password\":\"password123\",\"roles\":[\"restaurant\"],\"activeRole\":\"restaurant\",\"extraData\":{\"restaurantName\":\"Pizza Palace\",\"lat\":40.7128,\"lng\":-74.0060}}"
+  -d "{\"name\":\"Pizza Palace Owner\",\"phone\":\"9876543210\",\"password\":\"password123\",\"roles\":[\"restaurant\"],\"extraData\":{\"restaurantName\":\"Pizza Palace\",\"lat\":40.7128,\"lng\":-74.0060}}"
 ```
 
 ### Test 4: Register with Multiple Roles
 ```bash
 curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d "{\"name\":\"Multi Role User\",\"phone\":\"5555555555\",\"password\":\"password123\",\"roles\":[\"driver\",\"restaurant\"],\"activeRole\":\"driver\",\"extraData\":{\"vehicle\":\"Honda Civic\",\"restaurantName\":\"Burger King\",\"lat\":40.7580,\"lng\":-73.9855}}"
+  -d "{\"name\":\"Multi Role User\",\"phone\":\"5555555555\",\"password\":\"password123\",\"roles\":[\"driver\",\"restaurant\"],\"extraData\":{\"vehicle\":\"Honda Civic\",\"restaurantName\":\"Burger King\",\"lat\":40.7580,\"lng\":-73.9855}}"
 ```
 
 ### Test 5: Login
 ```bash
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d "{\"phone\":\"1234567890\",\"password\":\"password123\"}"
+  -d "{\"phone\":\"1234567890\",\"password\":\"password123\",\"activeRole\":\"driver\"}"
 ```
 
 ### Test 6: Logout
@@ -77,7 +77,6 @@ curl -X POST http://localhost:3000/api/auth/logout
      "phone": "1234567890",
      "password": "password123",
      "roles": ["driver"],
-     "activeRole": "driver",
      "extraData": {
        "vehicle": "Toyota Camry"
      }
@@ -95,7 +94,6 @@ curl -X POST http://localhost:3000/api/auth/logout
      "phone": "9876543210",
      "password": "password123",
      "roles": ["restaurant"],
-     "activeRole": "restaurant",
      "extraData": {
        "restaurantName": "Pizza Palace",
        "lat": 40.7128,
@@ -112,7 +110,8 @@ curl -X POST http://localhost:3000/api/auth/logout
    ```json
    {
      "phone": "1234567890",
-     "password": "password123"
+     "password": "password123",
+     "activeRole": "driver"
    }
    ```
 
@@ -124,17 +123,17 @@ curl -X POST http://localhost:3000/api/auth/logout
 
 ### Register Driver:
 ```powershell
-Invoke-RestMethod -Uri "http://localhost:3000/api/auth/register" -Method Post -ContentType "application/json" -Body '{"name":"John Driver","phone":"1234567890","password":"password123","roles":["driver"],"activeRole":"driver","extraData":{"vehicle":"Toyota Camry"}}'
+Invoke-RestMethod -Uri "http://localhost:3000/api/auth/register" -Method Post -ContentType "application/json" -Body '{"name":"John Driver","phone":"1234567890","password":"password123","roles":["driver"],"extraData":{"vehicle":"Toyota Camry"}}'
 ```
 
 ### Register Restaurant:
 ```powershell
-Invoke-RestMethod -Uri "http://localhost:3000/api/auth/register" -Method Post -ContentType "application/json" -Body '{"name":"Pizza Palace Owner","phone":"9876543210","password":"password123","roles":["restaurant"],"activeRole":"restaurant","extraData":{"restaurantName":"Pizza Palace","lat":40.7128,"lng":-74.0060}}'
+Invoke-RestMethod -Uri "http://localhost:3000/api/auth/register" -Method Post -ContentType "application/json" -Body '{"name":"Pizza Palace Owner","phone":"9876543210","password":"password123","roles":["restaurant"],"extraData":{"restaurantName":"Pizza Palace","lat":40.7128,"lng":-74.0060}}'
 ```
 
 ### Login:
 ```powershell
-Invoke-RestMethod -Uri "http://localhost:3000/api/auth/login" -Method Post -ContentType "application/json" -Body '{"phone":"1234567890","password":"password123"}'
+Invoke-RestMethod -Uri "http://localhost:3000/api/auth/login" -Method Post -ContentType "application/json" -Body '{"phone":"1234567890","password":"password123","activeRole":"driver"}'
 ```
 
 ### Logout:

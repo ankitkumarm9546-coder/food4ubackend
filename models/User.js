@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
   },
   activeRole: {
     type: String,
-    required: true
+    default: null
   },
   extraData: {
     type: mongoose.Schema.Types.Mixed,

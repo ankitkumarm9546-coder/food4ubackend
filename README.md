@@ -36,7 +36,6 @@ The server will run on `http://localhost:3000` by default.
   "phone": "1234567890",
   "password": "password123",
   "roles": ["driver", "restaurant"],
-  "activeRole": "driver",
   "extraData": {
     "vehicle": "Toyota Camry"
   }
@@ -50,7 +49,6 @@ For restaurant role:
   "phone": "9876543210",
   "password": "password123",
   "roles": ["restaurant"],
-  "activeRole": "restaurant",
   "extraData": {
     "restaurantName": "Pizza Palace",
     "lat": 40.7128,
@@ -73,7 +71,8 @@ For restaurant role:
 ```json
 {
   "phone": "1234567890",
-  "password": "password123"
+  "password": "password123",
+  "activeRole": "driver"
 }
 ```
 

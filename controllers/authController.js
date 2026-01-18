@@ -5,21 +5,13 @@ const config = require('../config/config');
 
 const register = async (req, res) => {
   try {
-    const { name, phone, password, roles, activeRole, extraData } = req.body;
+    const { name, phone, password, roles, extraData } = req.body;
 
     // Validation
-    if (!name || !phone || !password || !roles || !Array.isArray(roles) || roles.length === 0 || !activeRole) {
+    if (!name || !phone || !password || !roles || !Array.isArray(roles) || roles.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields: name, phone, password, roles (array), and activeRole are required'
-      });
-    }
-
-    // Validate activeRole is in roles array
-    if (!roles.includes(activeRole)) {
-      return res.status(400).json({
-        success: false,
-        message: 'activeRole must be one of the roles in the roles array'
+        message: 'Missing required fields: name, phone, password, roles (array) are required'
       });
     }
 
@@ -45,9 +37,30 @@ const register = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ phone });
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'User with this phone number already exists'
+      const newRoles = roles.filter((role) => !existingUser.roles.includes(role));
+
+      if (newRoles.length === 0) {
+        return res.status(200).json({
+          success: true,
+          userId: existingUser._id,
+          roles: existingUser.roles,
+          message: 'User already has these roles'
+        });
+      }
+
+      existingUser.roles = Array.from(new Set([...existingUser.roles, ...newRoles]));
+      existingUser.extraData = {
+        ...(existingUser.extraData || {}),
+        ...(extraData || {})
+      };
+
+      await existingUser.save();
+
+      return res.status(200).json({
+        success: true,
+        userId: existingUser._id,
+        roles: existingUser.roles,
+        message: 'Roles added successfully'
       });
     }
 
@@ -57,7 +70,6 @@ const register = async (req, res) => {
       phone,
       password,
       roles,
-      activeRole,
       extraData: extraData || {}
     });
 
@@ -80,12 +92,12 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { phone, password } = req.body;
+    const { phone, password, activeRole } = req.body;
 
-    if (!phone || !password) {
+    if (!phone || !password || !activeRole) {
       return res.status(400).json({
         success: false,
-        message: 'Phone and password are required'
+        message: 'Phone, password, and activeRole are required'
       });
     }
 
@@ -105,11 +117,30 @@ const login = async (req, res) => {
       });
     }
 
+    if (!user.roles.includes(activeRole)) {
+      return res.status(400).json({
+        success: false,
+        message: 'activeRole must be one of the roles in the roles array'
+      });
+    }
+
+    if (user.activeRole && user.activeRole !== activeRole) {
+      return res.status(409).json({
+        success: false,
+        message: 'You are already logged in with another role'
+      });
+    }
+
+    if (user.activeRole !== activeRole) {
+      user.activeRole = activeRole;
+      await user.save();
+    }
+
     const token = jwt.sign(
       {
         userId: user._id,
         roles: user.roles,
-        activeRole: user.activeRole
+        activeRole
       },
       config.JWT_SECRET,
       { expiresIn: config.JWT_EXPIRES_IN }
@@ -131,10 +162,31 @@ const login = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  res.json({
-    success: true,
-    message: 'Logged out'
-  });
+  try {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authorization token is required'
+      });
+    }
+
+    const payload = jwt.verify(token, config.JWT_SECRET);
+    await User.findByIdAndUpdate(payload.userId, { $set: { activeRole: null } });
+
+    res.json({
+      success: true,
+      message: 'Logged out'
+    });
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: 'Invalid or expired token',
+      error: error.message
+    });
+  }
 };
 
 module.exports = {
