@@ -67,6 +67,77 @@ For restaurant role:
 }
 ```
 
+### Login
+- **POST** `/api/auth/login`
+- **Payload:**
+```json
+{
+  "phone": "1234567890",
+  "password": "password123"
+}
+```
+
+- **Response:**
+```json
+{
+  "token": "jwt-token",
+  "activeRole": "driver",
+  "roles": ["driver"]
+}
+```
+
+### Logout
+- **POST** `/api/auth/logout`
+- **Response:**
+```json
+{
+  "success": true,
+  "message": "Logged out"
+}
+```
+
+### Foods
+
+#### POST `/api/foods`
+```json
+{
+  "name": "Rice",
+  "imageUrl": "https://cdn.app.com/foods/rice.png",
+  "category": "grain",
+  "dietaryTags": ["vegan", "gluten-free"],
+  "allergens": [],
+  "serving": { "size": 100, "unit": "g" },
+  "basePrepTime": 20,
+  "prepMethods": [
+    {
+      "method": "boiled",
+      "prepTimeMultiplier": 1.0,
+      "nutritionRetention": 0.95
+    }
+  ],
+  "nutrition": {
+    "calories": 130,
+    "protein": 2.7,
+    "carbs": 28,
+    "fat": 0.3,
+    "fiber": 0.4
+  },
+  "glycemicIndex": 73
+}
+```
+
+#### GET `/api/foods`
+Query params: `category`, `dietary`, `search`
+
+#### GET `/api/foods/:id`
+Returns full food details.
+
+#### PUT `/api/foods/:id`
+Partial update payload supported.
+
+#### DELETE `/api/foods/:id`
+Soft deletes a food by setting `isActive=false`.
+
 ## Features
 
 - User registration with multiple roles support

@@ -3,6 +3,7 @@ const cors = require('cors');
 const config = require('./config/config');
 const connectDB = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
+const foodRoutes = require('./routes/foodRoutes');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/foods', foodRoutes);
 
 // Health check route
 app.get('/', (req, res) => {

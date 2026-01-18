@@ -1,4 +1,7 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const config = require('../config/config');
 
 const register = async (req, res) => {
   try {
@@ -75,7 +78,68 @@ const register = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  try {
+    const { phone, password } = req.body;
+
+    if (!phone || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone and password are required'
+      });
+    }
+
+    const user = await User.findOne({ phone });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid phone or password'
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid phone or password'
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        roles: user.roles,
+        activeRole: user.activeRole
+      },
+      config.JWT_SECRET,
+      { expiresIn: config.JWT_EXPIRES_IN }
+    );
+
+    res.json({
+      token,
+      activeRole: user.activeRole,
+      roles: user.roles
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during login',
+      error: error.message
+    });
+  }
+};
+
+const logout = async (req, res) => {
+  res.json({
+    success: true,
+    message: 'Logged out'
+  });
+};
+
 module.exports = {
-  register
+  register,
+  login,
+  logout
 };
 
